@@ -1,0 +1,11 @@
+POST http://localhost:3001/api/procedure
+Content-Type: application/json
+
+{
+    "surname": "Иванова",
+    "name": "Марина",
+    "birthday": "01 января 2001",
+    "city": "Москва",
+    "dept_name": "Разработка",
+    "comp_name": "Газпром"
+}
