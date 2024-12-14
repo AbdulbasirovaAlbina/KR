@@ -4,12 +4,18 @@ const controller = require("../controllers/queryController");
 // создаем объект маршрутизатор
 const router = Router();
 
-// добавляем маршруты для запросов
-router.get("/", controller.getCooperator); 
-router.get("/:id", controller.getCooperatorById);
-router.post("/", controller.addCooperator);
-router.put("/:id", controller.updateCooperator);
-router.delete("/:id", controller.removeCooperator);
+// Маршрут для получения всех клиентов и их заказов
+router.get('/client-orders', controller.fetchClientOrders);
 
+// Маршрут для получения всех мастеров и их услуг
+router.get('/master-services', controller.fetchMasterServices);
+
+// Маршрут для получения расписания мастеров
+router.get('/master-schedule', controller.fetchMasterSchedule);
 // экспортируем маршрутизатор на server
 module.exports = router;
+
+
+
+
+
