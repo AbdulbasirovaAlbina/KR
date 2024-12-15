@@ -5,9 +5,7 @@ const controller = require("../controllers/functionController");
 const router = Router();
 
 // добавляем маршруты для пользовательской функции
-router.get("/", controller.func_SelectCooperator);
-router.get("/:name_department", controller.func_CountCooperator);
-router.post("/", controller.func_InsertCooperator);
-
+router.get("/service-statistics", controller.fetchServiceStatistics);
+router.get("/service-statistics-by-date", controller.getServiceStatistics);
 // экспортируем маршрутизатор на server
 module.exports = router;
