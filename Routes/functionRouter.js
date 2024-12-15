@@ -5,7 +5,10 @@ const controller = require("../controllers/functionController");
 const router = Router();
 
 // добавляем маршруты для пользовательской функции
-router.get("/service-statistics", controller.fetchServiceStatistics);
-router.get("/service-statistics-by-date", controller.getServiceStatistics);
+router.get('/service-statistics', controller.getServiceStatistics);
+// Маршрут для получения информации о мастерах с пустыми днями
+router.get('/masters-empty-days', controller.getMastersWithEmptyDays);
+// Маршрут для получения самой популярной услуги для клиентов
+router.get('/most-used-service-for-clients', controller.getMostUsedServiceForClients);
 // экспортируем маршрутизатор на server
 module.exports = router;

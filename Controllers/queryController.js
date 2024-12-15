@@ -59,9 +59,20 @@ const getReceiptByDateTime = (req, res) => {
       res.status(200).json(results.rows);
     });
   };
+  // Контроллер для получения популярности мастеров
+const fetchMasterPopularity = async (req, res) => {
+  try {
+      const result = await pool.query(queries.getMasterPopularity);
+      res.status(200).json(result.rows);
+  } catch (error) {
+      console.error('Ошибка при получении популярности мастеров:', error.message);
+      res.status(500).json({ error: 'Ошибка сервера при получении популярности мастеров.' });
+  }
+};
 // экспортируем модуль как объект, в котором будет несколько функций
 module.exports = {
   fetchMasterServices,
   getReceiptByDateTime,
-  getMasterSchedule
+  getMasterSchedule,
+  fetchMasterPopularity
 };

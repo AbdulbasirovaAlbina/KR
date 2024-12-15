@@ -11,5 +11,7 @@ router.get('/master-services', controller.fetchMasterServices);
 router.get("/receipt-by-datetime", controller.getReceiptByDateTime);
 // Маршрут для получения расписания мастера на указанную дату
 router.get("/master-schedule", controller.getMasterSchedule);
+// Маршрут для получения популярности мастеров
+router.get('/master-popularity', controller.fetchMasterPopularity);
 // экспортируем маршрутизатор на server
 module.exports = router;
