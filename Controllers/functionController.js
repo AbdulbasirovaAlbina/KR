@@ -52,29 +52,65 @@ const getMastersWithEmptyDays = async (req, res) => {
     }
   };
 
-  // Контроллер для получения самой популярной услуги для клиентов
-const getMostUsedServiceForClients = async (req, res) => {
-    const { startDate, endDate } = req.query;  // Получаем параметры startDate и endDate
+  const getFreeSlots = async (req, res) => {
+    const { lastName, firstName, middleName, serviceName, date } = req.body;
   
-    // Проверка наличия параметров startDate и endDate
-    if (!startDate || !endDate) {
-      return res.status(400).json({ error: "Необходимо указать параметры 'startDate' и 'endDate'." });
+    // Проверка наличия всех параметров
+    if (!lastName || !firstName || !middleName || !serviceName || !date) {
+      return res.status(400).json({ error: "Необходимо указать все параметры: lastName, firstName, middleName, serviceName, date." });
     }
   
     try {
-      // Выполнение запроса с параметрами
-      const result = await pool.query(queries.getMostUsedServiceForClients, [startDate, endDate]);
-  
-      // Возвращаем результаты в формате JSON
+      const result = await pool.query(queries.getFreeSlotsForService, [
+        lastName,
+        firstName,
+        middleName,
+        serviceName,
+        date,
+      ]);
       res.status(200).json(result.rows);
     } catch (error) {
-      console.error("Ошибка при получении самых популярных услуг:", error.message);
+      console.error("Ошибка при получении свободных окон:", error.message);
+      res.status(500).json({ error: "Ошибка сервера при получении свободных окон." });
+    }
+  };
+
+  const getMostUsedService = async (req, res) => {
+    const { lastName, firstName, startDate, endDate } = req.body; // Параметры приходят из body запроса
+  
+    // Проверка наличия всех параметров
+    if (!lastName || !firstName || !startDate || !endDate) {
+      return res.status(400).json({
+        error: "Необходимо указать все параметры: lastName, firstName, startDate, endDate.",
+      });
+    }
+  
+    try {
+      // Выполнение SQL-запроса с параметрами
+      const result = await pool.query(queries.getMostUsedServiceForClient, [
+        lastName,
+        firstName,
+        startDate,
+        endDate,
+      ]);
+  
+      // Проверка, если нет данных
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Нет данных для указанного клиента." });
+      }
+  
+      // Отправка результата
+      res.status(200).json(result.rows);
+    } catch (error) {
+      console.error("Ошибка при получении данных о популярной услуге:", error.message);
       res.status(500).json({ error: "Ошибка сервера при получении данных." });
     }
   };
   
+
 module.exports = {
 getServiceStatistics,
+getMostUsedService,
 getMastersWithEmptyDays,
-getMostUsedServiceForClients
+getFreeSlots
 };

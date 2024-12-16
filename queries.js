@@ -50,29 +50,55 @@ SELECT
 FROM 
     MasterServicesView;
 `;
-
-//самый популярный мастер
+//популярность мастера
 const getMasterPopularity = `
   SELECT
-      master_full_name,
-      booking_count
+      "Имя мастера",
+      "Количество записей"
   FROM master_popularity;
 `;
-//популярная услуга мастера
-const getMostUsedServiceForClients = `
+
+//все чеки
+const getAllReceipts = `
+  SELECT 
+      "Чек", 
+      "Клиент", 
+      "Дата выполнения услуги", 
+      "Услуга", 
+      "Мастер", 
+      "Цена", 
+      "Дата печати чека"
+  FROM generate_receipt_view
+  ORDER BY "Дата печати чека" DESC;  -- Сортировка от самых новых
+`;
+
+//свободные окна
+const getFreeSlotsForService = `
+  SELECT free_start AS "Начало свободного времени", 
+         free_end AS "Конец свободного времени"  
+  FROM get_free_slots_for_service($1, $2, $3, $4, $5);
+`;
+const getMostUsedServiceForClient = `
   SELECT
     "ФИО клиента",
     "Популярная услуга",
     "Количество использований"
-  FROM get_most_used_service_for_clients($1, $2); 
+  FROM get_most_used_service_for_client($1, $2, $3, $4);
 `;
+const addSchedule = `
+  CALL AddSchedule($1, $2, $3, $4, $5, $6);
+`;
+
 module.exports = {
   getMasterServices,
   getReceiptByDateTime,
+  getAllReceipts,
   getMasterScheduleWithClients,
   getServiceStatistics,
   getMasterPopularity,
   getMastersWithEmptyDays,
-  getMostUsedServiceForClients
+  getFreeSlotsForService,
+  getMostUsedServiceForClient,
+  addSchedule
 };
 

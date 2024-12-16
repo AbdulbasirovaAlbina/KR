@@ -3,8 +3,7 @@ const controller = require("../controllers/procedureController");
 
 const router = Router();
 
-router.post("/", controller.validateCooperatorData, controller.procAddCooperator);
-router.put("/:percent", controller.procUpdateSalary);
-router.delete("/", controller.procRemoveCooperator);
+router.post("/add-schedule", controller.addMasterSchedule);
+
 
 module.exports = router;

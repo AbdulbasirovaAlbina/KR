@@ -41,6 +41,8 @@ const getReceiptByDateTime = (req, res) => {
       }
     );
   };
+
+  
   const getMasterSchedule = (req, res) => {
     const { date } = req.query;
   
@@ -59,20 +61,31 @@ const getReceiptByDateTime = (req, res) => {
       res.status(200).json(results.rows);
     });
   };
-  // Контроллер для получения популярности мастеров
-const fetchMasterPopularity = async (req, res) => {
-  try {
-      const result = await pool.query(queries.getMasterPopularity);
-      res.status(200).json(result.rows);
-  } catch (error) {
-      console.error('Ошибка при получении популярности мастеров:', error.message);
-      res.status(500).json({ error: 'Ошибка сервера при получении популярности мастеров.' });
-  }
+  const fetchMasterPopularity = async (req, res) => {
+    try {
+        const result = await pool.query(queries.getMasterPopularity);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Ошибка при получении популярности мастеров:', error.message);
+        res.status(500).json({ error: 'Ошибка сервера при получении популярности мастеров.' });
+    }
+  };
+
+  const getAllReceipts = async (req, res) => {
+    try {
+        const result = await pool.query(queries.getAllReceipts);  // Используем новый запрос
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Ошибка при получении данных о чеках:', error.message);
+        res.status(500).json({ error: 'Ошибка сервера при получении данных о чеках.' });
+    }
 };
+
 // экспортируем модуль как объект, в котором будет несколько функций
 module.exports = {
   fetchMasterServices,
   getReceiptByDateTime,
   getMasterSchedule,
-  fetchMasterPopularity
+  fetchMasterPopularity,
+  getAllReceipts
 };
