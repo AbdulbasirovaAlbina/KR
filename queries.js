@@ -1,3 +1,7 @@
+
+
+
+
 //статистика
 const getServiceStatistics = `
   SELECT
@@ -85,10 +89,26 @@ const getMostUsedServiceForClient = `
     "Количество использований"
   FROM get_most_used_service_for_client($1, $2, $3, $4);
 `;
+//добавление расписания сотруднику
 const addSchedule = `
   CALL AddSchedule($1, $2, $3, $4, $5, $6);
 `;
+//вывод истории услуг клиента
+const historyClient = `
+SELECT
+  "Дата записи",
+  "Время начала",
+  "Время окончания",
+  "Услуга",
+  "Мастер"
+FROM
+  get_client_service_history($1, $2, $3);
+`;
 
+const addClientOrderAndSchedule = `
+  CALL add_client_order_and_schedule_with_check($1, $2, $3, $4, $5, $6, $7, $8, $9);
+`;
+const addMasterService=`CALL AddMasterService($1, $2, $3, $4)`;
 module.exports = {
   getMasterServices,
   getReceiptByDateTime,
@@ -99,6 +119,9 @@ module.exports = {
   getMastersWithEmptyDays,
   getFreeSlotsForService,
   getMostUsedServiceForClient,
-  addSchedule
+  addSchedule,
+  historyClient,
+  addClientOrderAndSchedule,
+  addMasterService
 };
 

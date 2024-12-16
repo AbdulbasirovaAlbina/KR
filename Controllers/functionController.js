@@ -27,6 +27,8 @@ const getServiceStatistics = async (req, res) => {
       res.status(500).json({ error: 'Ошибка сервера при получении статистики.' });
   }
 };
+
+
 const getMastersWithEmptyDays = async (req, res) => {
     const { startDate, endDate } = req.query;  // Параметры для диапазона дат
     
@@ -52,6 +54,7 @@ const getMastersWithEmptyDays = async (req, res) => {
     }
   };
 
+
   const getFreeSlots = async (req, res) => {
     const { lastName, firstName, middleName, serviceName, date } = req.body;
   
@@ -61,6 +64,7 @@ const getMastersWithEmptyDays = async (req, res) => {
     }
   
     try {
+      // Запрос для получения свободных слотов
       const result = await pool.query(queries.getFreeSlotsForService, [
         lastName,
         firstName,
@@ -68,12 +72,31 @@ const getMastersWithEmptyDays = async (req, res) => {
         serviceName,
         date,
       ]);
+  
+      // Если нет свободных окон, возвращаем ошибку с описанием
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Свободных окон для указанной услуги не найдено." });
+      }
+  
       res.status(200).json(result.rows);
+  
     } catch (error) {
       console.error("Ошибка при получении свободных окон:", error.message);
+  
+      // Обработка ошибок на основе сообщения ошибки
+      if (error.message.includes('Услуга не найдена')) {
+        return res.status(404).json({ error: "Услуга с таким названием не существует." });
+      }
+  
+      if (error.message.includes('Мастер не найден')) {
+        return res.status(404).json({ error: "Мастер с указанным именем не найден." });
+      }
+  
+      // Обработка других типов ошибок
       res.status(500).json({ error: "Ошибка сервера при получении свободных окон." });
     }
   };
+  
 
   const getMostUsedService = async (req, res) => {
     const { lastName, firstName, startDate, endDate } = req.body; // Параметры приходят из body запроса
@@ -107,10 +130,118 @@ const getMastersWithEmptyDays = async (req, res) => {
     }
   };
   
+  const getClientServiceHistory = async (req, res) => {
+    const { lastName, firstName, phone } = req.body; // Параметры приходят через тело запроса
+  
+    // Проверка наличия всех параметров
+    if (!lastName || !firstName || !phone) {
+      return res.status(400).json({ error: "Необходимо указать все параметры: lastName, firstName, phone." });
+    }
+  
+    try {
+      // Запрос для получения истории услуг клиента
+      const result = await pool.query(queries.historyClient, [lastName, firstName, phone]);
+  
+      // Если данных нет
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Услуги для этого клиента не найдены." });
+      }
+  
+      // Форматируем дату и время для каждого результата
+      const formattedResults = result.rows.map(row => {
+        return {
+          "Дата записи": row["Дата записи"].toISOString().split('T')[0], // Получаем только дату без времени
+          "Время начала": row["Время начала"].toString(), // Форматируем время как строку
+          "Время окончания": row["Время окончания"].toString(), // Форматируем время как строку
+          "Услуга": row["Услуга"],
+          "Мастер": row["Мастер"]
+        };
+      });
+  
+      // Возвращаем отформатированные результаты
+      res.status(200).json(formattedResults);
+    } catch (error) {
+      console.error("Ошибка при получении истории услуг:", error.message);
+      if (error.message.includes('Клиент с такими данными не найден:')) {
+        return res.status(404).json({ error: "Клиент с такими данными не найден" });
+      } else {
+      return res.status(500).json({ error: "Произошла ошибка при получении данных." });}
+    }
+  };
 
+
+const addSchedule = async (req, res) => {
+    const { lastName, firstName, middleName, date, startTime, endTime } = req.body;
+
+    // Проверка наличия всех параметров
+    if (!lastName || !firstName || !middleName || !date || !startTime || !endTime) {
+        return res.status(400).json({ error: "Необходимо указать все параметры: lastName, firstName, middleName, date, startTime, endTime." });
+    }
+
+    try {
+        // Выполнение вызова функции AddSchedule с параметрами
+        await pool.query(queries.addSchedule, [
+            lastName,
+            firstName,
+            middleName,
+            date,
+            startTime,
+            endTime
+        ]);
+
+        // Возвращаем успех
+        res.status(200).json({ message: "Расписание успешно добавлено." });
+    } catch (error) {
+        console.error("Ошибка при добавлении расписания:", error);
+
+        // Для других ошибок возвращаем общий ответ
+        res.status(500).json({ error: "Ошибка сервера при добавлении рабочего дня." });
+    }
+};
+
+
+const addClientOrderAndSchedule = async (req, res) => {
+  const { clientLastName, clientFirstName, clientPhone, serviceName, masterLastName, masterFirstName, masterMiddleName, orderDate, startTime } = req.body;
+
+  // Проверка наличия всех параметров
+  if (!clientLastName || !clientFirstName || !clientPhone || !serviceName || !masterLastName || !masterFirstName || !masterMiddleName || !orderDate || !startTime) {
+    return res.status(400).json({ error: "Необходимо указать все параметры." });
+  }
+
+  try {
+    // Вызов процедуры для добавления заказа
+    const result = await pool.query(queries.addClientOrderAndSchedule, [
+      clientLastName, 
+      clientFirstName, 
+      clientPhone, 
+      serviceName, 
+      masterLastName, 
+      masterFirstName, 
+      masterMiddleName, 
+      orderDate, 
+      startTime
+    ]);
+
+    // Если заказ успешно добавлен
+    res.status(200).json({ message: "Запись успешно добавлена"});
+  } catch (error) {
+    console.error("Ошибка при добавлении заказа:", error.message);
+    if (error.message.includes('Конфликт времени: указанный интервал пересекается с существующими заказами')) {
+      return res.status(404).json({ error: "Конфликт времени: указанный интервал пересекается с существующими заказами" });
+    } else {
+      return res.status(500).json({ error: "Ошибка сервера при добавлении заказа." });
+    }
+  }
+
+};
+
+  
 module.exports = {
 getServiceStatistics,
 getMostUsedService,
 getMastersWithEmptyDays,
-getFreeSlots
+getFreeSlots,
+getClientServiceHistory,
+addSchedule,
+addClientOrderAndSchedule
 };
