@@ -15,32 +15,37 @@ const fetchMasterServices = async (req, res) => {
 };
 
 const getReceiptByDateTime = (req, res) => {
-    const { dateTime } = req.query;  // Дата и время чека передаются как параметр query
-  
-    // Проверка наличия параметра
-    if (!dateTime) {
-      return res.status(400).json({ error: "Необходимо указать параметр 'dateTime'." });
-    }
-  
-    pool.query(
-      queries.getReceiptByDateTime,  // Используем запрос из queries.js
-      [dateTime],  // Передаем дату и время как параметр
-      (error, results) => {
-        if (error) {
-          console.error("Ошибка при получении данных о чеке:", error.message);
-          return res.status(500).json({ error: "Ошибка сервера при получении данных о чеке." });
-        }
-  
-        // Если нет результатов, возвращаем ошибку
-        if (results.rows.length === 0) {
-          return res.status(404).json({ error: "Чек с указанной датой и временем не найден." });
-        }
-  
-        // Возвращаем данные о чеке
-        res.status(200).json(results.rows);
+  const { Дата, Время } = req.body;  // Получаем параметры Дата и Время из тела запроса
+
+  // Проверка наличия параметров
+  if (!Дата || !Время) {
+    return res.status(400).json({ error: "Необходимо указать параметры 'Дата' и 'Время'." });
+  }
+
+  // Объединяем Дата и Время в одну строку (например: "2024-12-17 10:00:00")
+  const dateTime = `${Дата} ${Время}`;
+
+  pool.query(
+    queries.getReceiptByDateTime,  // Используем запрос из queries.js
+    [dateTime],  // Передаем объединенную строку
+    (error, results) => {
+      if (error) {
+        console.error("Ошибка при получении данных о чеке:", error.message);
+        return res.status(500).json({ error: "Ошибка сервера при получении данных о чеке." });
       }
-    );
-  };
+
+      // Если нет результатов, возвращаем ошибку
+      if (results.rows.length === 0) {
+        return res.status(404).json({ error: "Чек с указанной датой и временем не найден." });
+      }
+
+      // Возвращаем данные о чеке
+      res.status(200).json(results.rows);
+    }
+  );
+};
+
+
 
   
   const getMasterSchedule = (req, res) => {

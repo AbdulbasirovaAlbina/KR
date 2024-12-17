@@ -2,8 +2,12 @@
 const procAddMaster = `
   CALL AddMaster($1, $2, $3, $4, $5);
 `;
-
-
+const addProc = `
+  CALL addservice($1, $2, $3, $4);
+`;
+const addClient = `
+  CALL addclient($1, $2, $3, $4, $5);
+`;
 //статистика
 const getServiceStatistics = `
   SELECT
@@ -111,6 +115,15 @@ const addClientOrderAndSchedule = `
   CALL add_client_order_and_schedule_with_check($1, $2, $3, $4, $5, $6, $7, $8, $9);
 `;
 const addMasterService=`CALL AddMasterService($1, $2, $3, $4)`;
+const updateClientOrder = `
+  CALL update_client_order($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+`;
+const updateMaster =
+`CALL update_master_data(
+  $1, $2, $3, $4, $5, $6, $7
+)`;
+const updateClient =
+`CALL update_client_data( $1, $2, $3, $4, $5, $6, $7 )`;
 module.exports = {
   getMasterServices,
   getReceiptByDateTime,
@@ -125,6 +138,11 @@ module.exports = {
   historyClient,
   addClientOrderAndSchedule,
   addMasterService,
-  procAddMaster
+  procAddMaster,
+  addProc,
+  addClient,
+  updateClientOrder,
+  updateMaster,
+  updateClient
 };
 

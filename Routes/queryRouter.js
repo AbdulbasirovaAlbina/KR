@@ -13,6 +13,6 @@ router.get("/receipt-by-datetime", controller.getReceiptByDateTime);
 router.get("/master-schedule", controller.getMasterSchedule);
 // Маршрут для получения популярности мастеров
 router.get('/master-popularity', controller.fetchMasterPopularity);
-router.get("/all-receipts", controller.getAllReceipts);
+router.get('/all-receipts', controller.getAllReceipts);
 // экспортируем маршрутизатор на server
 module.exports = router;

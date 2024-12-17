@@ -13,8 +13,7 @@ router.get('/free-slots', controller.getFreeSlots);
 router.get('/most-used-service', controller.getMostUsedService); 
 router.get('/service-history', controller.getClientServiceHistory);
 // Добавляем маршрут для добавления расписания
-router.post('/add-schedule', controller.addSchedule);
-router.post('/add-client-order-and-schedule', controller.addClientOrderAndSchedule);
+
 
 
 // экспортируем маршрутизатор на server

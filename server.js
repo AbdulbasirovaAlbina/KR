@@ -1,25 +1,34 @@
-const procedureRoutes = require("./routes/procedureRouter");
-const functionRoutes = require("./routes/functionRouter");
 const queryRouter = require("./routes/queryRouter");
 
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const userRouter = require("./routes/userRouter");  
 
 const publicPath = path.join(__dirname, "public");
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser()); // Теперь можно устанавливать и извлекать файлы cookie, используя объекты res и req соответственно.
-//app.use("/api/query", query_router);
 app.use(express.static(publicPath));
-
+app.use("/user", userRouter);  
 
 app.use("/api/query", queryRouter);
-app.use("/api/procedure", procedureRoutes);
-app.use("/api/function", functionRoutes);
+
+
+//Для тестирования работы сервера
+app.get("/", (req, res) => {
+  res.sendFile(path.join(publicPath, "login.html")); // Возвращаем login.html
+});
+
+app.get("/home", (req, res) => {
+  if (req.cookies && req.cookies.username) {
+    res.send(`С возвращением, ${req.cookies.username}!`);
+  } else {
+    res.send("Пожалуйста, войдите в систему.");
+  }
+});
 
 
 require("dotenv").config(); // Загружаем переменные среды из файла .env
