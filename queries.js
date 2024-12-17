@@ -124,6 +124,7 @@ module.exports = {
   addSchedule,
   historyClient,
   addClientOrderAndSchedule,
-  addMasterService
+  addMasterService,
+  procAddMaster
 };
 

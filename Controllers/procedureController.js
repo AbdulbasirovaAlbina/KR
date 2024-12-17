@@ -3,6 +3,60 @@ const { parse } = require("dotenv");
 const pool = require("../db");
 const queries = require("../queries");
 
+const validateMasterField = (field, value) => {
+  const rules = {
+    lastName: /^[А-Яа-яЁё]+$/,
+    firstName: /^[А-Яа-яЁё]+$/,
+    middleName: /^[А-Яа-яЁё]+$/,
+    birthDate: /^\d{4}-\d{2}-\d{2}$/, // Формат даты YYYY-MM-DD
+    gender: /^[МЖ]$/, // M или Ж
+  };
+
+  if (!rules[field].test(value)) {
+    return `${field} содержит некорректные данные.`;
+  }
+  return null;
+};
+
+const validateMasterFields = (fields) => {
+  const errors = [];
+  for (const [field, value] of Object.entries(fields)) {
+    const error = validateMasterField(field, value);
+    if (error) errors.push(error);
+  }
+  return errors;
+};
+const addMaster = async (req, res) => {
+  const { lastName, firstName, middleName, birthDate, gender } = req.body;
+
+  const fields = { lastName, firstName, middleName, birthDate, gender };
+  const errors = validateMasterFields(fields);
+
+  if (errors.length > 0) {
+    return res.status(400).json(errors); // Возвращаем ошибки валидации
+  }
+
+  try {
+    await pool.query('CALL addmaster($1, $2, $3, $4, $5)', [
+      lastName,
+      firstName,
+      middleName,
+      birthDate,
+      gender,
+    ]);
+    res.status(200).json({ message: 'Мастер успешно добавлен.' });
+  } catch (error) {
+    if (error.message.includes('Мастер с такими данными уже существует.')) {
+      res.status(400).json({ error: 'Мастер уже существует в системе.' });
+    } else {
+      console.error('Ошибка при добавлении мастера:', error.message);
+      res.status(500).send('Ошибка сервера при добавлении мастера.');
+    }
+  }
+};
+
+
+
 const addMasterSchedule = async (req, res) => {
   const { lastName, firstName, middleName, date, startTime, endTime } = req.body;
 
@@ -73,5 +127,6 @@ const addMasterService = async (req, res) => {
 
 module.exports = {
   addMasterSchedule,
-  addMasterService
+  addMasterService,
+  addMaster
 };
